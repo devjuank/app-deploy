@@ -1,0 +1,24 @@
+autoDiscovery:
+  clusterName: "${CLUSTER_NAME}"
+awsRegion: "us-east-1"
+cloudProvider: aws
+rbac:
+  serviceAccount:
+    create: true
+    name: cluster-autoscaler
+    annotations:
+      eks.amazonaws.com/role-arn: "${CLUSTER_AUTOSCALER_ROLE_ARN}"
+extraArgs:
+  balance-similar-node-groups: "true"
+  expander: least-waste
+  skip-nodes-with-system-pods: "false"
+  skip-nodes-with-local-storage: "false"
+  scale-down-unneeded-time: 5m
+  scale-down-delay-after-add: 2m
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 300m
+    memory: 256Mi
