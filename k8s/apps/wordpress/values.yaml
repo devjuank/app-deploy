@@ -1,0 +1,67 @@
+image:
+  repository: docker.io/bitnami/wordpress
+  tag: 6.5.3
+  pullPolicy: IfNotPresent
+
+replicaCount: 2
+
+mariadb:
+  enabled: false
+
+externalDatabase:
+  host: ""
+  port: 5432
+  database: ""
+  user: ""
+  password: ""
+  existingSecret: wordpress-db
+  existingSecretHostKey: host
+  existingSecretDatabaseKey: database
+  existingSecretUserKey: username
+  existingSecretPasswordKey: password
+
+service:
+  type: ClusterIP
+  ports:
+    http: 80
+
+ingress:
+  enabled: false
+
+resources:
+  requests:
+    memory: 512Mi
+    cpu: 250m
+  limits:
+    memory: 1Gi
+    cpu: 500m
+
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 180
+  periodSeconds: 20
+
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 60
+  periodSeconds: 10
+
+podSecurityContext:
+  fsGroup: 1001
+  runAsNonRoot: true
+
+containerSecurityContext:
+  runAsUser: 1001
+  allowPrivilegeEscalation: false
+
+podAnnotations:
+  sidecar.istio.io/inject: "false"
+
+persistence:
+  enabled: true
+  size: 10Gi
+  accessModes:
+    - ReadWriteOnce
+
+metrics:
+  enabled: false
