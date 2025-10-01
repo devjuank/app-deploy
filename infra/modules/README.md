@@ -22,3 +22,8 @@
 - Creates the EKS control plane and node roles with required AWS managed policies.
 - When IRSA is enabled, provisions service-account roles for ALB Controller, ExternalDNS, External Secrets, and Cluster Autoscaler with least-privilege policies.
 - Emits ARNs so Helm add-ons can annotate their service accounts appropriately.
+
+## rds
+- Provisions a Multi-AZ PostgreSQL instance in private subnets with encryption, autoscaling storage, and performance insights.
+- Builds Secrets Manager entries (`/project/env/db/*`) for connection details consumed by External Secrets.
+- Optionally attaches an RDS Proxy (toggle via `enable_rds_proxy`) to improve connection pooling for spiky workloads.
