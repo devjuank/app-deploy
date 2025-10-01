@@ -1,6 +1,11 @@
-# app – Deployment Guide
 
-This guide links the Terraform infrastructure and Kubernetes manifests required to run the WordPress reference workload in AWS. Use it as the master entry point and drill into the component-specific docs when you need full detail.
+## Requirement Alignment
+- **Public HTTPS domain** – ACM certificate on the ALB ingress, ExternalDNS managing Route53 records.
+- **Managed, highly available database** – Amazon RDS PostgreSQL Multi-AZ with encrypted storage and autoscaling.
+- **Horizontal scaling** – Kubernetes HPA (pods) plus Cluster Autoscaler with on-demand and Spot node groups.
+- **Security best practices** – IRSA for controllers, network isolation via NetworkPolicy, Secrets Manager + External Secrets for credentials, private subnets for nodes/DB, SSM access to nodes.
+- **Observability** – EKS control plane logs in CloudWatch, metrics-server for HPA targeting.
+- **Cost awareness** – Spot workers, AWS Budget alerts, teardown guidance.
 
 ## Document Map
 - [`../infra/README.md`](../infra/README.md) – Terraform module structure, workflow, and notes.
@@ -8,6 +13,10 @@ This guide links the Terraform infrastructure and Kubernetes manifests required 
 - [`../k8s/README.md`](../k8s/README.md) – Kubernetes deployment workflow.
 - [`../k8s/addons/README.md`](../k8s/addons/README.md) – Add-on controllers overview.
 - [`../k8s/apps/README.md`](../k8s/apps/README.md) – WordPress chart customisations.
+
+# App – Deployment Guide
+
+This guide links the Terraform infrastructure and Kubernetes manifests required to run the WordPress reference workload in AWS. Use it as the master entry point and drill into the component-specific docs when you need full detail.
 
 ## Prerequisites
 - Terraform ≥ 1.5, Helm ≥ 3.10, kubectl, AWS CLI v2, `jq`, `envsubst`.
@@ -34,4 +43,3 @@ This guide links the Terraform infrastructure and Kubernetes manifests required 
 2. Remove add-ons: `helm uninstall aws-load-balancer-controller external-dns cluster-autoscaler -n kube-system` and delete the `external-secrets` namespace.
 3. Wait for the ALB to be deleted (no listeners/target groups left).
 4. Run `terraform destroy` from `infra/envs/dev`.
-
