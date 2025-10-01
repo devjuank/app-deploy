@@ -1,4 +1,4 @@
-# kiusys– Deployment Guide
+# app – Deployment Guide
 
 This guide links the Terraform infrastructure and Kubernetes manifests required to run the WordPress reference workload in AWS. Use it as the master entry point and drill into the component-specific docs when you need full detail.
 
