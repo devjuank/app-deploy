@@ -4,7 +4,7 @@ locals {
     Environment = var.environment,
   }, var.tags)
 
-  oidc_provider_host = var.oidc_provider_url != null ? replace(var.oidc_provider_url, "https://", "") : null
+  oidc_provider_host = var.enable_irsa && var.oidc_provider_url != null ? replace(var.oidc_provider_url, "https://", "") : null
 }
 
 # EKS control plane role
@@ -84,12 +84,9 @@ resource "aws_iam_role_policy_attachment" "nodes_ecr" {
 }
 
 # IAM Roles for Service Accounts (IRSA)
-locals {
-  irsa_enabled = var.enable_irsa && var.oidc_provider_arn != null && var.oidc_provider_url != null
-}
 
 data "aws_iam_policy_document" "irsa_assume" {
-  count = local.irsa_enabled ? 1 : 0
+  count = var.enable_irsa ? 1 : 0
 
   statement {
     effect  = "Allow"
@@ -109,7 +106,7 @@ data "aws_iam_policy_document" "irsa_assume" {
 }
 
 locals {
-  irsa_service_accounts = local.irsa_enabled ? {
+  irsa_service_accounts = var.enable_irsa ? {
     aws_load_balancer_controller = {
       name               = "aws-load-balancer-controller"
       namespace          = "kube-system"
@@ -206,7 +203,7 @@ locals {
 }
 
 locals {
-  irsa_managed_policies = local.irsa_enabled ? {
+  irsa_managed_policies = var.enable_irsa ? {
     for idx, item in flatten([
       for key, value in local.irsa_service_accounts : [
         for policy in value.policy_attachments : {
