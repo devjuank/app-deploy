@@ -30,7 +30,7 @@ output "rds_secrets" {
 
 output "route53_zone_id" {
   description = "Hosted zone ID"
-  value       = module.route53.zone_id
+  value       = data.aws_route53_zone.primary.zone_id
 }
 
 output "acm_certificate_arn" {

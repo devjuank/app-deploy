@@ -8,9 +8,10 @@ locals {
 }
 
 resource "random_password" "master" {
-  count   = var.db_password == "" ? 1 : 0
-  length  = 24
-  special = true
+  count            = var.db_password == "" ? 1 : 0
+  length           = 24
+  special          = true
+  override_special = "!#$%^&*()-_=+[]{}<>?."
 }
 
 locals {
