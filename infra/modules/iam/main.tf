@@ -39,7 +39,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 resource "aws_iam_role_policy_attachment" "eks_vpc_controller" {
   count      = var.create_cluster_role ? 1 : 0
   role       = aws_iam_role.eks_cluster[0].name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCCNIPolicy"
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"
 }
 
 # Worker node role shared by node groups
@@ -110,8 +110,170 @@ locals {
     aws_load_balancer_controller = {
       name               = "aws-load-balancer-controller"
       namespace          = "kube-system"
-      policy_attachments = ["arn:aws:iam::aws:policy/AWSLoadBalancerControllerIAMPolicy"]
-      inline_policy      = null
+      policy_attachments = []
+      inline_policy = jsonencode({
+        Version = "2012-10-17"
+        Statement = [
+          {
+            Effect   = "Allow"
+            Action   = ["iam:CreateServiceLinkedRole"]
+            Resource = "*"
+            Condition = {
+              StringEquals = {
+                "iam:AWSServiceName" = "elasticloadbalancing.amazonaws.com"
+              }
+            }
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "ec2:DescribeAccountAttributes",
+              "ec2:DescribeAddresses",
+              "ec2:DescribeAvailabilityZones",
+              "ec2:DescribeInternetGateways",
+              "ec2:DescribeVpcs",
+              "ec2:DescribeVpcPeeringConnections",
+              "ec2:DescribeSubnets",
+              "ec2:DescribeSecurityGroups",
+              "ec2:DescribeInstances",
+              "ec2:DescribeNetworkInterfaces",
+              "ec2:DescribeTags",
+              "ec2:DescribeInstanceCreditSpecifications",
+              "ec2:GetCoipPoolUsage",
+              "ec2:DescribeCoipPools",
+              "elasticloadbalancing:DescribeLoadBalancers",
+              "elasticloadbalancing:DescribeLoadBalancerAttributes",
+              "elasticloadbalancing:DescribeListeners",
+              "elasticloadbalancing:DescribeListenerCertificates",
+              "elasticloadbalancing:DescribeSSLPolicies",
+              "elasticloadbalancing:DescribeRules",
+              "elasticloadbalancing:DescribeTargetGroups",
+              "elasticloadbalancing:DescribeTargetGroupAttributes",
+              "elasticloadbalancing:DescribeTargetHealth",
+              "elasticloadbalancing:DescribeTags"
+            ]
+            Resource = "*"
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "cognito-idp:DescribeUserPoolClient",
+              "acm:ListCertificates",
+              "acm:DescribeCertificate",
+              "iam:ListServerCertificates",
+              "iam:GetServerCertificate",
+              "waf-regional:GetWebACL",
+              "waf-regional:GetWebACLForResource",
+              "waf-regional:AssociateWebACL",
+              "waf-regional:DisassociateWebACL",
+              "wafv2:GetWebACL",
+              "wafv2:GetWebACLForResource",
+              "wafv2:AssociateWebACL",
+              "wafv2:DisassociateWebACL",
+              "shield:GetSubscriptionState",
+              "shield:DescribeProtection",
+              "shield:CreateProtection",
+              "shield:DeleteProtection"
+            ]
+            Resource = "*"
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "ec2:AuthorizeSecurityGroupIngress",
+              "ec2:RevokeSecurityGroupIngress",
+              "ec2:CreateSecurityGroup",
+              "ec2:CreateTags",
+              "ec2:DeleteTags",
+              "ec2:DeleteSecurityGroup"
+            ]
+            Resource = "*"
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "elasticloadbalancing:CreateLoadBalancer",
+              "elasticloadbalancing:CreateTargetGroup"
+            ]
+            Resource = "*"
+            Condition = {
+              Null = {
+                "aws:RequestTag/elbv2.k8s.aws/cluster" = "false"
+              }
+            }
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "elasticloadbalancing:CreateListener",
+              "elasticloadbalancing:DeleteListener",
+              "elasticloadbalancing:CreateRule",
+              "elasticloadbalancing:DeleteRule"
+            ]
+            Resource = "*"
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "elasticloadbalancing:AddTags",
+              "elasticloadbalancing:RemoveTags"
+            ]
+            Resource = [
+              "arn:aws:elasticloadbalancing:*:*:targetgroup/*/*",
+              "arn:aws:elasticloadbalancing:*:*:loadbalancer/net/*/*",
+              "arn:aws:elasticloadbalancing:*:*:loadbalancer/app/*/*"
+            ]
+            Condition = {
+              Null = {
+                "aws:RequestTag/elbv2.k8s.aws/cluster"  = "true",
+                "aws:ResourceTag/elbv2.k8s.aws/cluster" = "false"
+              }
+            }
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "elasticloadbalancing:AddTags",
+              "elasticloadbalancing:RemoveTags"
+            ]
+            Resource = [
+              "arn:aws:elasticloadbalancing:*:*:listener/net/*/*/*",
+              "arn:aws:elasticloadbalancing:*:*:listener/app/*/*/*",
+              "arn:aws:elasticloadbalancing:*:*:listener-rule/net/*/*/*",
+              "arn:aws:elasticloadbalancing:*:*:listener-rule/app/*/*/*"
+            ]
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "elasticloadbalancing:RegisterTargets",
+              "elasticloadbalancing:DeregisterTargets"
+            ]
+            Resource = "arn:aws:elasticloadbalancing:*:*:targetgroup/*/*"
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "elasticloadbalancing:SetSubnets",
+              "elasticloadbalancing:SetIpAddressType",
+              "elasticloadbalancing:SetSecurityGroups",
+              "elasticloadbalancing:SetWebAcl",
+              "elasticloadbalancing:ModifyListener",
+              "elasticloadbalancing:ModifyTargetGroup",
+              "elasticloadbalancing:ModifyRule"
+            ]
+            Resource = "*"
+          },
+          {
+            Effect = "Allow"
+            Action = [
+              "tag:GetResources",
+              "tag:TagResources"
+            ]
+            Resource = "*"
+          }
+        ]
+      })
     }
     external_dns = {
       name               = "external-dns"
