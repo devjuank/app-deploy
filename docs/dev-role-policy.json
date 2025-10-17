@@ -50,6 +50,7 @@
         "iam:DeleteRolePolicy",
         "iam:GetRole",
         "iam:ListRoles",
+        "iam:ListInstanceProfilesForRole",
         "iam:CreateOpenIDConnectProvider",
         "iam:DeleteOpenIDConnectProvider",
         "iam:GetOpenIDConnectProvider",
