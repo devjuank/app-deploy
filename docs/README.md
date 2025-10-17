@@ -21,6 +21,7 @@ This guide links the Terraform infrastructure and Kubernetes manifests required 
 ## Prerequisites
 - Terraform ≥ 1.5, Helm ≥ 3.10, kubectl, AWS CLI v2, `jq`, `envsubst`.
 - AWS account with rights over IAM, EKS, EC2, Route 53, ACM, RDS, Budgets, Secrets Manager in `us-east-1`.
+- The account must support Amazon RDS Multi-AZ deployments (not available on some free-tier plans).
 - (Optional) Remote Terraform backend (S3 + DynamoDB) configured before `terraform init`.
 - Authenticated AWS session (`aws sso login` o variables de entorno).
 

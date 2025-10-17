@@ -3,7 +3,7 @@
 Use this checklist before running the main Terraform stack.
 
 ## 1. Credentials & Profiles
-1. **Create infrastructure policy** – Use `docs/dev-role-policy.json` as the body for a customer managed policy (e.g. `TerraformDevPolicy`).
+1. **Create infrastructure policy** – Use `docs/dev-role-policy.json` as the body for a customer managed policy (e.g. `TerraformDevPolicy`). Replace the placeholder `arn:aws:iam::*:role/product-kiusys-dev*` in the PassRole statement with the naming pattern for your project (for example `project-env-*`).
 2. **Create assume-role policy** – Create another customer managed policy (e.g. `AllowAssumeTerraformRole`) with:
 
 ```json
@@ -18,7 +18,7 @@ Use this checklist before running the main Terraform stack.
   ]
 }
 ```
-3. **Create assume-role policy** – create a second policy (e.g. `AllowAssumeTerraformRole`) granting `sts:AssumeRole` on `TerraformDevRole`.
+3. **Create role** – create `TerraformDevRole` (type “AWS account”), attach `TerraformDevPolicy`, and ensure the trust relationship allows principals in your account to assume it.
 4. **Create IAM user** – if AWS SSO is unavailable, create `terraform-dev-user` (or similar) and attach `AllowAssumeTerraformRole`. Enable MFA if possible.
 5. **Obtain credentials** – retrieve the access key ID/secret for the user.
 6. **Configure host credentials** – store them via `aws configure --profile terraform-dev-user` or by editing `~/.aws/credentials` under `[terraform-dev-user]`.

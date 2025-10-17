@@ -37,13 +37,9 @@ module "vpc" {
   tags         = local.base_tags
 }
 
-module "route53" {
-  source = "../../modules/route53"
-
-  project_name     = var.project_name
-  environment      = local.environment
-  hosted_zone_name = var.hosted_zone_name
-  tags             = local.base_tags
+data "aws_route53_zone" "primary" {
+  name         = var.hosted_zone_name
+  private_zone = false
 }
 
 module "acm" {
@@ -51,7 +47,7 @@ module "acm" {
 
   project_name     = var.project_name
   environment      = local.environment
-  hosted_zone_id   = module.route53.zone_id
+  hosted_zone_id   = data.aws_route53_zone.primary.zone_id
   hosted_zone_name = var.hosted_zone_name
   subdomain        = var.subdomain
   tags             = local.base_tags
@@ -133,7 +129,7 @@ resource "aws_budgets_budget" "monthly" {
   limit_amount      = format("%.2f", var.budget_limit_usd)
   limit_unit        = "USD"
   time_unit         = "MONTHLY"
-  time_period_start = formatdate("YYYY-MM-01", timestamp())
+  time_period_start = formatdate("2006-01-02_15:04", timestamp())
 
   cost_types {
     include_credit             = true
