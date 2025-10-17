@@ -3,7 +3,9 @@
 Use this checklist before running the main Terraform stack.
 
 ## 1. Credentials & Profiles
-1. **Create infrastructure policy** – Use `docs/dev-role-policy.json` as the body for a customer managed policy (e.g. `TerraformDevPolicy`). Replace the placeholder `arn:aws:iam::*:role/product-kiusys-dev*` in the PassRole statement with the naming pattern for your project (for example `project-env-*`).
+1. **Create infrastructure policy** – Use `docs/dev-role-policy.json` as the body for a customer managed policy (e.g. `TerraformDevPolicy`). Replace the placeholders before uploading:
+   - `arn:aws:iam::*:role/product-kiusys-dev*` → patrón real de tus roles (`project-env-*`, etc.).
+   - `tf-state-kiusys-dev` / `tf-state-lock-kiusys-dev` → nombres de tu bucket y tabla para el backend de Terraform.
 2. **Create assume-role policy** – Create another customer managed policy (e.g. `AllowAssumeTerraformRole`) with:
 
 ```json

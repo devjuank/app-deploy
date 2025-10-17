@@ -111,6 +111,47 @@
           ]
         }
       }
+    },
+    {
+      "Sid": "TerraformStateS3CreateDelete",
+      "Effect": "Allow",
+      "Action": [
+        "s3:CreateBucket",
+        "s3:DeleteBucket",
+        "s3:ListAllMyBuckets"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "TerraformStateBackend",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:GetBucketVersioning",
+        "s3:PutBucketVersioning",
+        "s3:PutEncryptionConfiguration",
+        "s3:PutBucketPolicy",
+        "s3:PutBucketTagging",
+        "s3:GetBucketPolicy",
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "dynamodb:CreateTable",
+        "dynamodb:DeleteTable",
+        "dynamodb:DescribeTable",
+        "dynamodb:DescribeTimeToLive",
+        "dynamodb:UpdateTable",
+        "dynamodb:ListTables",
+        "dynamodb:PutItem",
+        "dynamodb:GetItem",
+        "dynamodb:DeleteItem"
+      ],
+      "Resource": [
+        "arn:aws:s3:::tf-state-kiusys-dev",
+        "arn:aws:s3:::tf-state-kiusys-dev/*",
+        "arn:aws:dynamodb:*:*:table/tf-state-lock-kiusys-dev"
+      ]
     }
   ]
 }
